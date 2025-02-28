@@ -1,0 +1,580 @@
+---
+title: "Portofolio"
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      bg: "#F6F0F0"
+      fg: "#000000" 
+      primary: "#4B49AC"
+      base_font:
+        google: Prompt
+      code_font:
+        google: JetBrains Mono
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+# Install thematic and un-comment for themed static plots (i.e., ggplot2)
+# thematic::thematic_rmd()
+pacman::p_load(tidyverse,
+                tidyquant,
+                tidyr,
+                DT,
+                timetk,
+                forcats,
+                plotly,
+                rmdformats
+               
+               )
+```
+
+
+# Data
+
+## COlumn {.tabset .tabset-pills}
+
+### Stocks Market
+
+```{r}
+library(DT)
+# Simbol saham
+symbols <- c("ABDA.JK", "RUIS.JK", "PEHA.JK", "AIMS.JK", "GOLD.JK")
+
+# Mengunduh data saham
+saham <- tq_get(symbols,
+                from = '2019-01-01',
+                to = "2024-05-30",
+                get = 'stock.prices')
+DT::datatable(saham) 
+```
+
+### Closing Prices
+```{r}
+closing_prices <- saham %>%
+  select(symbol, date, adjusted) %>%
+  spread(symbol, adjusted)
+datatable(closing_prices)
+```
+
+
+```{r}
+cor_matrix <- cor(closing_prices[,-1], use = "complete.obs")
+library(corrplot)
+
+# Membuat visualisasi matriks korelasi
+
+```
+
+
+# Daily Price
+
+## Column {.tabset .tabset-pills}
+
+### ABDA.JK
+```{r}
+# Memilih simbol saham tertentu
+symbol0 <- "ABDA.JK"
+
+
+# Membuat plot interaktif dengan Plotly
+plot_ly(data = closing_prices, x = ~date, y = ~ABDA.JK, mode="lines", color = ~symbol0, colors = "Set1") %>%
+  add_lines() %>%
+  layout(title = paste("Daily Closing Price of", symbol0),
+         xaxis = list(title = "Date", range = c(as.Date("2019-01-01"), as.Date("2023-01-10"))),
+         yaxis = list(title = "Price")) 
+```
+
+
+### AIMS.JK
+```{r}
+# Memilih simbol saham tertentu
+symbol1 <- "AIMS.JK"
+
+
+# Membuat plot interaktif dengan Plotly
+plot_ly(data = closing_prices, x = ~date, y = ~AIMS.JK, mode="lines", color = ~symbol1, colors = "Set1") %>%
+  add_lines() %>%
+  layout(title = paste("Daily Closing Price of", symbol1),
+         xaxis = list(title = "Date", range = c(as.Date("2019-01-01"), as.Date("2023-01-10"))),
+         yaxis = list(title = "Price",range = c(0,700)))
+```
+
+
+### GOLD.JK
+```{r}
+# Memilih simbol saham tertentu
+symbol2 <- "GOLD.JK"
+
+
+# Membuat plot interaktif dengan Plotly
+plot_ly(data = closing_prices, x = ~date, y = ~GOLD.JK, mode="lines", color = ~symbol2, colors = "Set1") %>%
+  add_lines() %>%
+  layout(title = paste("Daily Closing Price of", symbol2),
+         xaxis = list(title = "Date", range = c(as.Date("2019-01-01"), as.Date("2023-01-10"))),
+         yaxis = list(title = "Price"))
+```
+
+
+### PEHA.JK
+```{r}
+# Memilih simbol saham tertentu
+symbol3 <- "PEHA.JK"
+
+
+# Membuat plot interaktif dengan Plotly
+plot_ly(data = closing_prices, x = ~date, y = ~PEHA.JK, mode="lines", color = ~symbol3, colors = "Set1") %>%
+  add_lines() %>%
+  layout(title = paste("Daily Closing Price of", symbol3),
+         xaxis = list(title = "Date", range = c(as.Date("2019-01-01"), as.Date("2023-01-10"))),
+         yaxis = list(title = "Price"))
+```
+
+
+
+### RUIS.JK
+```{r}
+# Memilih simbol saham tertentu
+symbol4 <- "RUIS.JK"
+
+
+# Membuat plot interaktif dengan Plotly
+plot_ly(data = closing_prices, x = ~date, y = ~RUIS.JK, mode="lines", color = ~symbol4, colors = "Set1") %>%
+  add_lines() %>%
+  layout(title = paste("Daily Closing Price of", symbol4),
+         xaxis = list(title = "Date", range = c(as.Date("2019-01-01"), as.Date("2023-01-10"))),
+         yaxis = list(title = "Price"))
+```
+
+
+
+
+# Daily Return
+
+## Column {.tabset .tabset-pills}
+
+### RUIS.JK
+
+```{r}
+# Mengunduh data harga saham harian
+stock_prices <- tq_get(symbols, from = "2020-01-01", to = "2023-01-10", get = "stock.prices")
+# Memilih kolom yang diperlukan untuk plotting
+stock_returns <- stock_prices %>%
+  group_by(symbol) %>%
+  mutate(daily_return = (close - lag(close)) / lag(close))
+stock_returnss <- stock_returns %>%
+  filter(symbol == "RUIS.JK")
+
+
+stock_returns_plot <- stock_returnss %>%
+  select( symbol, date, daily_return)%>%
+  spread(symbol, daily_return)
+
+symbol5 <- "RUIS.JK"
+
+# Plot return harian untuk masing-masing saham
+plot_ly(data = stock_returns_plot,  x = ~date, y = ~RUIS.JK, mode="lines", color = ~symbol5, colors = "Set1")%>%
+  add_lines() %>%
+  layout(title = paste("Daily Stock Returns",symbol5),
+       xaxis = list(title="Date"),
+       yaxis = list(title="Return") )
+```
+
+### ABDA.JK
+```{r}
+# Memilih kolom yang diperlukan untuk plotting
+stock_returns1<- stock_returns %>%
+  filter(symbol == "ABDA.JK")
+
+
+stock_returns_plot <- stock_returns1 %>%
+  select( symbol, date, daily_return)%>%
+  spread(symbol, daily_return)
+
+symbol6 <- "ABDA.JK"
+
+# Plot return harian untuk masing-masing saham
+plot_ly(data = stock_returns_plot,  x = ~date, y = ~ABDA.JK, mode="lines", color = ~symbol6, colors = "Set2")%>%
+  add_lines() %>%
+  layout(title = paste("Daily Stock Returns",symbol6),
+       xaxis = list(title="Date"),
+       yaxis = list(title="Return") )
+```
+
+
+
+## Column {.tabset .tabset-pills}
+
+### AIMS.JK
+```{r}
+# Memilih kolom yang diperlukan untuk plotting
+stock_returns2<- stock_returns %>%
+  filter(symbol == "AIMS.JK")
+
+
+stock_returns_plot <- stock_returns2 %>%
+  select( symbol, date, daily_return)%>%
+  spread(symbol, daily_return)
+
+symbol7 <- "AIMS.JK"
+
+# Plot return harian untuk masing-masing saham
+plot_ly(data = stock_returns_plot,  x = ~date, y = ~AIMS.JK, mode="lines", color = ~symbol7, colors = "Set3")%>%
+  add_lines() %>%
+  layout(title = paste("Daily Stock Returns",symbol7),
+       xaxis = list(title="Date"),
+       yaxis = list(title="Return", range = c(-.1,.4)) )
+```
+
+### GOLD.JK
+
+```{r}
+# Memilih kolom yang diperlukan untuk plotting
+stock_returns3<- stock_returns %>%
+  filter(symbol == "GOLD.JK")
+
+
+stock_returns_plot <- stock_returns3 %>%
+  select( symbol, date, daily_return)%>%
+  spread(symbol, daily_return)
+
+symbol8 <- "GOLD.JK"
+
+# Plot return harian untuk masing-masing saham
+plot_ly(data = stock_returns_plot,  x = ~date, y = ~GOLD.JK, mode="lines", color = ~symbol8, colors = "Pastel2")%>%
+  add_lines() %>%
+  layout(title = paste("Daily Stock Returns",symbol8),
+       xaxis = list(title="Date"),
+       yaxis = list(title="Return"))
+```
+
+
+### PEHA.JK
+```{r}
+# Memilih kolom yang diperlukan untuk plotting
+stock_returns4<- stock_returns %>%
+  filter(symbol == "PEHA.JK")
+
+
+stock_returns_plot <- stock_returns4 %>%
+  select( symbol, date, daily_return)%>%
+  spread(symbol, daily_return)
+
+symbol9 <- "PEHA.JK"
+
+# Plot return harian untuk masing-masing saham
+plot_ly(data = stock_returns_plot,  x = ~date, y = ~PEHA.JK, mode="lines", color = ~symbol9, colors = "Pastel1")%>%
+  add_lines() %>%
+  layout(title = paste("Daily Stock Returns",symbol9),
+       xaxis = list(title="Date"),
+       yaxis = list(title="Return", range = c(-.1,.4)) )
+```
+
+
+# Corellation Plot
+
+## Column {.tabset .tabset-pills}
+
+### Heatmap
+```{r}
+getSymbols(symbols, from = '2019-01-01', to ="2024-05-30", scr = "yahoo", adjust =FALSE)
+label <- c("Asuransi Bina Dana Arta Tbk", "Radiant Utama Interinsco", "Phapros Tbk", "Akbar Indo Makmur Stimec Tbk", "Visi Telekomunakasi Infrastruktur")
+prices <-  NULL
+for (stock in symbols) {
+  prices <- cbind(prices, Cl(get(stock)))
+}
+returns <- Return.calculate(prices)
+correlation_matrix <- cor(na.omit(returns))
+mask <- matrix(FALSE, nrow = nrow(correlation_matrix), ncol = ncol(correlation_matrix))
+mask[lower.tri(mask)] <- TRUE
+colnames(correlation_matrix) <- rownames(correlation_matrix) <- label
+heatmap <- plot_ly(z = correlation_matrix, x = label, y = label, type = "heatmap"  )
+heatmap <- heatmap %>%
+  layout(title = "Correlation Heatmap of Indonesian Stocks",
+         xaxis = list(title=""),
+         yaxis = list(title=""),
+         margin = list(l=80, r=80, t=100, b=80))
+
+heatmap
+```
+
+
+### Plot
+```{r}
+corrplot(cor_matrix, method = "circle")
+```
+
+
+
+# Portofolio Weight and VAR
+
+## Column {data-width= 650}
+```{r}
+# Asumsi bobot portofolio sama rata
+weights <- rep(1/length(symbols), length(symbols))
+
+# Menghitung return portofolio
+portfolio_returns <- Return.portfolio(returns, weights = weights)
+
+# Convert portfolio returns to a data frame
+portfolio_returns_df <- data.frame(Date = index(portfolio_returns), 
+                                   portfolio_return = coredata(portfolio_returns))
+
+# Create an interactive plot
+p <- plot_ly(portfolio_returns_df, x = ~Date, y = ~portfolio.returns, type = 'scatter', mode = 'lines') %>%
+  layout(title = 'Portfolio Returns Over Time',
+         xaxis = list(title = 'Date'),
+         yaxis = list(title = 'Portfolio Return'))
+
+# Show the plot
+p
+```
+
+## Column {.tabset .tabset.pills}
+
+### Return Portofolio
+```{r}
+# Menampilkan ringkasan return portofolio
+datatable(table.AnnualizedReturns(portfolio_returns))
+```
+
+### VAR 
+
+```{r}
+# Menghitung VaR pada tingkat kepercayaan 95%
+VaR_95 <- VaR(portfolio_returns, p = 0.95, method = "historical")
+
+```
+
+```{r}
+volatility <- sd(portfolio_returns)
+sigma <- volatility
+
+confidence_level <- 0.95
+
+if (confidence_level == 0.95) {
+  z_score <- qnorm(1 - confidence_level)
+} else if (confidence_level == 0.99) {
+  z_score <- qnorm(1 - confidence_level)
+} else {
+  stop("Not Valid")
+}
+
+portfolio_value <- 5000000
+
+Var <- z_score * sigma * portfolio_value
+
+
+tradi <- data.frame(
+  VaR_95= -0.034005074016278,
+  volatility, 
+  Var
+)
+
+colnames(tradi) <- c("Value at Risk (95%)", "Volatilitas", "Value at Risk")
+datatable(tradi)
+```
+
+
+
+# Prediction 
+
+## Column {.tabset .tabset-pills}
+
+```{r}
+# volitality ARIMA
+library(forecast)
+closing_prices -> i
+j<- i%>% dplyr::mutate(PEHA.JK = replace_na(PEHA.JK, mean(na.omit(i$PEHA.JK))))
+
+j$week_num <- strftime(j$date, format = "%V")
+j$year <- strftime(j$date, format = "%Y")
+j<- j%>%
+  group_by(year, week_num)%>%
+  summarize(ABDA= mean(ABDA.JK),
+         AIMS=mean(AIMS.JK),
+         GOLD=mean(GOLD.JK),
+         PEHA=mean(PEHA.JK),
+         RUIS=mean(RUIS.JK))
+```
+
+```{r}
+aa1 = auto.arima(j$ABDA)
+aa2 = auto.arima(j$AIMS)
+aa3 = auto.arima(j$GOLD)
+aa4 = auto.arima(j$PEHA)
+aa5 = auto.arima(j$RUIS)
+
+a.p1 = data.frame(predict(aa1,2))
+a.p2 = data.frame(predict(aa2,2))
+a.p3 = data.frame(predict(aa3,2))
+#a.p4 = data.frame(predict(aa4,3))
+a.p5 = data.frame(predict(aa5,2))
+
+
+ts1 = ts(j$ABDA,  start=c(2019,1), frequency=52)
+ts2 = ts(j$AIMS,  start=c(2019,1), frequency=52)
+ts3 = ts(j$GOLD,  start=c(2019,1), frequency=52)
+#ts4 = ts(j$PEHA, start=c(2019,1), frequency=52)
+ts5 = ts(j$RUIS, start=c(2019,1), frequency=52)
+
+
+
+a.ts1 = c(j$ABDA, a.p1$pred)
+a.ts2 = c(j$AIMS, a.p2$pred)
+a.ts3 = c(j$GOLD, a.p3$pred)
+#a.ts4 = c(j$PEHA, a.p4$pred)
+a.ts5 = c(j$RUIS, a.p5$pred)
+
+```
+
+
+
+```{r}
+library(rugarch)
+library(fGarch)
+garch_spec <- ugarchspec(variance.model= list(model="sGARCH", garchOrder = c(1,1)), mean.model = list(armaOrder = c(0,0), include.mean=F))
+garch_fit1 <- ugarchfit(spec=garch_spec, data=j$ABDA)
+garch_fit2 <- ugarchfit(spec=garch_spec, data=j$AIMS)
+garch_fit3 <- ugarchfit(spec=garch_spec, data=j$GOLD)
+#garch_fit4 <- ugarchfit(spec=garch_spec, data=j$PEHA)
+garch_fit5 <- ugarchfit(spec=garch_spec, data=j$RUIS)
+
+
+b.g1 <- sigma(garch_fit1)
+b.g2 <- sigma(garch_fit2)
+b.g3 <- sigma(garch_fit3)
+#b.g4 <- sigma(garch_fit4)
+b.g5 <- sigma(garch_fit5)
+
+fit <- data.frame(
+  week = j$week_num
+)
+
+fit$ABDA = as.numeric(b.g1)
+fit$AIMS = as.numeric(b.g2)
+fit$GOLD = as.numeric(b.g3)
+#fit$PEHA = as.numeric(b.g4)
+fit$RUIS = as.numeric(b.g5)
+
+
+b.p1 <- garchFit(~ garch(1, 1), data = j$ABDA, trace = FALSE)
+b.p2 <- garchFit(~ garch(1, 1), data = j$AIMS, trace = FALSE)
+b.p3 <- garchFit(~ garch(1, 1), data = j$GOLD, trace = FALSE)
+b.p5 <- garchFit(~ garch(1, 1), data = j$RUIS, trace = FALSE)
+
+z1 = data.frame(predict(b.p1,2))
+z2 = data.frame(predict(b.p2,2))
+z3 = data.frame(predict(b.p3,2))
+z5 = data.frame(predict(b.p5,2))
+
+b.ts1 = c(fit$ABDA ,z1$meanForecast)
+b.ts2 = c(fit$AIMS ,z2$meanForecast)
+b.ts3 = c(fit$GOLD ,z3$meanForecast)
+b.ts5 = c(fit$RUIS ,z5$meanForecast)
+
+
+```
+
+### ABDA.JK
+```{r}
+library(highcharter)
+tanggal = seq(as.Date("2019/1/1"), as.Date("2024/05/30"), by = "week")
+ABDA = data.frame(
+  date = tanggal,
+  arima = a.ts1,
+  garch = b.ts1
+)
+
+ABDA$actual =c(j$ABDA,NA,NA)
+
+hchart(ABDA, type = "line", 
+         hcaes(x = date, 
+               y = arima), name="Fitted ARIMA and Prediction") %>% 
+  hc_yAxis(opposite = TRUE,
+           labels = list(format = "{value}"))%>%
+  hc_add_series(ABDA, type="line", hcaes(x=date, y=garch), name="Fitted GARCH and Prediction")%>%
+  hc_add_series(ABDA, type="line", hcaes(x=date, y=actual), name="Actual Data")%>%
+  hc_title(text="ABDA.JK Weekly Price")
+```
+
+
+### AIMS.JK
+
+```{r}
+AIMS = data.frame(
+  date = tanggal,
+  arima = a.ts2,
+  garch = b.ts2
+)
+
+GOLD = data.frame(
+  date = tanggal,
+  arima = a.ts3,
+  garch = b.ts3
+)
+
+RUIS = data.frame(
+  date = tanggal,
+  arima = a.ts5,
+  garch = b.ts5
+)
+
+AIMS$actual =c(j$AIMS,NA,NA)
+GOLD$actual =c(j$GOLD,NA,NA)
+RUIS$actual =c(j$RUIS,NA,NA)
+
+hchart(AIMS, 
+         type = "line", 
+         hcaes(x = date, 
+               y = arima), name="Fitted ARIMA and Prediction") %>% 
+  hc_yAxis(opposite = TRUE,
+           labels = list(format = "{value}"))%>%
+  hc_add_series(AIMS, type="line", hcaes(x=date, y=garch), name="Fitted GARCH and Prediction")%>%
+  hc_add_series(AIMS, type="line", hcaes(x=date, y=actual), name="Actual Data")%>%
+  hc_title(text="AIMS.JK Weekly Price")
+```
+
+### GOLD.JK
+
+```{r}
+hchart(GOLD, 
+         type = "line", 
+         hcaes(x = date, 
+               y = arima), name="Fitted ARIMA and Prediction") %>% 
+  hc_yAxis(opposite = TRUE,
+           labels = list(format = "{value}"))%>%
+  hc_add_series(GOLD, type="line", hcaes(x=date, y=garch), name="Fitted GARCH and Prediction")%>%
+  hc_add_series(GOLD, type="line", hcaes(x=date, y=actual), name="Actual Data")%>%
+  hc_title(text="GOLD.JK Weekly Price")
+```
+
+### RUIS.JK
+
+```{r}
+hchart(RUIS, 
+         type = "line", 
+         hcaes(x = date, 
+               y = arima), name="Fitted ARIMA and Prediction") %>% 
+  hc_yAxis(opposite = TRUE,
+           labels = list(format = "{value}"))%>%
+  hc_add_series(RUIS, type="line", hcaes(x=date, y=garch), name="Fitted GARCH and Prediction")%>%
+  hc_add_series(RUIS, type="line", hcaes(x=date, y=actual), name="Actual Data")%>%
+  hc_title(text="RUIS.JK Weekly Price", style=list(color="#FEFFD2", useHTML=T))
+```
+
+# Creator
+Matana University
+<br>
+Statistics
+<br>
+
++ Alicia Arifin, 20214920001 
+
++ Diyas Arya Nugroho, 20214920007 
+
++ Dhela Asafiani Agatha, 20214920009
+
+
+
